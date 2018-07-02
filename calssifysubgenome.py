@@ -2,6 +2,7 @@
 # coding=utf-8
 import optparse
 import time
+import subgenome
 
 __author__ = 'Guoliang Lin'
 Softwarename = 'calssifysubgenome'
