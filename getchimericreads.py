@@ -119,5 +119,6 @@ if __name__ == '__main__':
     printinformations()
     options = _parse_args()
     # your code here!
+
     getchimericreads(options.input)
     programends()
