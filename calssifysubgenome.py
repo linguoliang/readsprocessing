@@ -3,6 +3,7 @@
 import optparse
 import time
 import subgenome
+# import caculatebedlength
 
 __author__ = 'Guoliang Lin'
 Softwarename = 'calssifysubgenome'
@@ -39,11 +40,53 @@ def _parse_args():
 
 
 # define your functions here!
+lengthm=0
+lengthp=0
+subgenome.getscafflodinformation()
+
+def caculatebedlength():
+    with open("merged.bed") as inputfile:
+        lengthm=0
+        lengthp=0
+        for item in inputfile:
+            item=item.strip()
+            itemlist=item.split("\t")
+            if itemlist[0] in subgenome.scaffoldm:
+                lengthm += (int(itemlist[2])-int(itemlist[1])+1)
+            elif itemlist[0] in subgenome.scaffoldp:
+                lengthp += (int(itemlist[2])-int(itemlist[1])+1)
+    return lengthm,lengthp
+
+def caculateratio(file,lm,lp):
+    coverage=3
+    tag=3
+    snvdcitp={}
+    snvdcitm={}
+    with open(file) as inputfile:
+        for item in inputfile:
+            item=item.strip()
+            itemlist=item.split("\t")
+            tempPosition='\t'.join(itemlist[0:tag])
+            if (itemlist[0] in subgenome.scaffoldm) and int(itemlist[4])>=coverage:
+                if tempPosition in snvdcitm:
+                    if itemlist[tag] not in snvdcitm[tempPosition]:
+                        snvdcitm[tempPosition].append(itemlist[tag])
+                else: snvdcitm[tempPosition]=[itemlist[tag]]
+            elif itemlist[0] in subgenome.scaffoldp and int(itemlist[4])>=coverage :
+                if tempPosition in snvdcitp:
+                    if itemlist[tag] not in snvdcitp[tempPosition]:
+                        snvdcitp[tempPosition].append(itemlist[tag])
+                else: snvdcitp[tempPosition]=[itemlist[tag]]
+    print("the subgenome one ratio is {}, subgenome two ratio is {}".format(len(snvdcitm)/lm,len(snvdcitp)/lp))
+
+printinformations()
+options = _parse_args()
+# your code here!
+lengthm,lengthp=caculatebedlength()
+print("Caculate the ratio of triploid")
+caculateratio("8952-gan-merged.snv",lengthm,lengthp)
+print("Caculate the ratio of diploid")
+caculateratio("16001-gan-merged.snv",lengthm,lengthp)
 
 
-if __name__ == '__main__':
-    printinformations()
-    options = _parse_args()
-    # your code here!
-
-    programends()
+programends()
