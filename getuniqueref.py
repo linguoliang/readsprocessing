@@ -31,6 +31,7 @@ def _parse_args():
     parser = optparse.OptionParser(usage)
     parser.add_option('-c', '--ccds', dest='ccds', type='string', help='CCDS annotation!')
     parser.add_option('-r', '--ref', dest='ref', type='string', help='whole genome reference!')
+    parser.add_option('-a', '--anno', dest='anno', type='string', help='unique CCDS annotation output name!')
     #    parser.add_option('-f','--fpkm',dest='fpkm_file',type='string',help='input fpkm file')
     #    parser.add_option('-v','--variation', dest='variation', type='string', help='input variation information file')
     #    parser.add_option('-g', '--gff3', dest='gff', help='gff3 file')
@@ -43,11 +44,19 @@ def _parse_args():
 # define your functions here!
 ChromeDict = {}
 
-if __name__ == '__main__':
-    printinformations()
-    options = _parse_args()
-    # your code here!
-    with open("CCDS.20180614.txt") as inputfile:
+
+def writeannotation(antationname, ccds=None):
+    if ccds and len(ChromeDict) == 0:
+        parsechromdict(ccds)
+    with open(antationname, 'w') as annoutput:
+        for chr in ChromeDict:
+            for anno in ChromeDict[chr]:
+                tempstr = str(ChromeDict[chr][anno])
+                annoutput.write(tempstr + '\n')
+
+
+def parsechromdict(ccds):
+    with open(ccds) as inputfile:
         inputfile.readline()
         for item in inputfile:
             item = item.strip()
@@ -61,18 +70,31 @@ if __name__ == '__main__':
                         ChromeDict[itemlist[0]][itemlist[3]] = CCDS.superCCDS(itemlist)
                 else:
                     ChromeDict[itemlist[0]] = {itemlist[3]: CCDS.superCCDS(itemlist)}
-    iterator = SeqIO.parse("Homo_sapiens_assembly38.fa", 'fasta')
-    with open("CCDS_unique.fasta", 'w') as outputfile:
+
+
+def getuniqueref(ccds: str, ref: str, output: str, anno: str = None):
+    parsechromdict(ccds)
+    iterator = SeqIO.parse(ref, 'fasta')
+    with open(output, 'w') as outputfile:
         for seq in iterator:
             if seq.id in ChromeDict:
                 temseq = seq[0:0]
                 for gene_id in ChromeDict[seq.id]:
                     for resion in ChromeDict[seq.id][gene_id].exonlist:
-                        temseq += seq[resion[0]:resion[1]]
-                    temseq.id="|".join([ChromeDict[seq.id][gene_id].ccds_id, ChromeDict[seq.id][gene_id].gene_id,ChromeDict[seq.id][gene_id].chromosome])
+                        temseq += seq[resion[0]-1:resion[1]]
+                    temseq.id = "|".join([ChromeDict[seq.id][gene_id].ccds_id, ChromeDict[seq.id][gene_id].gene_id,
+                                          ChromeDict[seq.id][gene_id].chromosome])
                     temseq.name = ""
                     temseq.description = ""
                     SeqIO.write(temseq, outputfile, 'fasta')
                     temseq = seq[0:0]
+    if anno != None:
+        writeannotation(anno)
 
+
+if __name__ == '__main__':
+    printinformations()
+    options = _parse_args()
+    # your code here!
+    getuniqueref(options.ccds, options.ref, options.output, options.anno)
     programends()
