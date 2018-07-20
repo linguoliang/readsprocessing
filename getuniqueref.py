@@ -45,9 +45,10 @@ def _parse_args():
 ChromeDict = {}
 
 
-def writeannotation(antationname, ccds=None):
+def writeannotation(antationname,ChromeDict={}, ccds=None):
+
     if ccds and len(ChromeDict) == 0:
-        parsechromdict(ccds)
+        ChromeDict=CCDS.parsechromdict(ccds)
     with open(antationname, 'w') as annoutput:
         for chr in ChromeDict:
             for anno in ChromeDict[chr]:
@@ -55,25 +56,25 @@ def writeannotation(antationname, ccds=None):
                 annoutput.write(tempstr + '\n')
 
 
-def parsechromdict(ccds):
-    with open(ccds) as inputfile:
-        inputfile.readline()
-        for item in inputfile:
-            item = item.strip()
-            itemlist = item.split('\t')
-            if itemlist[5] == "Public":
-                # tmepccds=CCDS.superCCDS(itemlist)
-                if itemlist[0] in ChromeDict:
-                    if itemlist[3] in ChromeDict[itemlist[0]]:
-                        ChromeDict[itemlist[0]][itemlist[3]].addlist(itemlist)
-                    else:
-                        ChromeDict[itemlist[0]][itemlist[3]] = CCDS.superCCDS(itemlist)
-                else:
-                    ChromeDict[itemlist[0]] = {itemlist[3]: CCDS.superCCDS(itemlist)}
+# def parsechromdict(ccds):
+#     with open(ccds) as inputfile:
+#         inputfile.readline()
+#         for item in inputfile:
+#             item = item.strip()
+#             itemlist = item.split('\t')
+#             if itemlist[5] == "Public":
+#                 # tmepccds=CCDS.superCCDS(itemlist)
+#                 if itemlist[0] in ChromeDict:
+#                     if itemlist[3] in ChromeDict[itemlist[0]]:
+#                         ChromeDict[itemlist[0]][itemlist[3]].addlist(itemlist)
+#                     else:
+#                         ChromeDict[itemlist[0]][itemlist[3]] = CCDS.superCCDS(itemlist)
+#                 else:
+#                     ChromeDict[itemlist[0]] = {itemlist[3]: CCDS.superCCDS(itemlist)}
 
 
 def getuniqueref(ccds: str, ref: str, output: str, anno: str = None):
-    parsechromdict(ccds)
+    ChromeDict = CCDS.parsechromdict(ccds)
     iterator = SeqIO.parse(ref, 'fasta')
     with open(output, 'w') as outputfile:
         for seq in iterator:
@@ -81,7 +82,7 @@ def getuniqueref(ccds: str, ref: str, output: str, anno: str = None):
                 temseq = seq[0:0]
                 for gene_id in ChromeDict[seq.id]:
                     for resion in ChromeDict[seq.id][gene_id].exonlist:
-                        temseq += seq[resion[0]-1:resion[1]]
+                        temseq += seq[resion[0] - 1:resion[1]]
                     temseq.id = "|".join([ChromeDict[seq.id][gene_id].ccds_id, ChromeDict[seq.id][gene_id].gene_id,
                                           ChromeDict[seq.id][gene_id].chromosome])
                     temseq.name = ""
@@ -89,7 +90,7 @@ def getuniqueref(ccds: str, ref: str, output: str, anno: str = None):
                     SeqIO.write(temseq, outputfile, 'fasta')
                     temseq = seq[0:0]
     if anno != None:
-        writeannotation(anno)
+        writeannotation(anno,ChromeDict)
 
 
 if __name__ == '__main__':

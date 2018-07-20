@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # coding=utf-8
 import interval
+
 '''
 解析CCDS注释文件，并构建超级CCDS
 '''
@@ -28,8 +29,6 @@ class CCDS:
         self.exonnumber = 0
         self.update()
 
-
-
     def initexon(self):
         exonlist = []
         assert isinstance(self.cds_locations, str)
@@ -48,10 +47,10 @@ class CCDS:
         update parameters
         :return:
         '''
-        self.length=self.cds_to - self.cds_from + 1
-        self.exonnumber=len(self.exonlist)
-        self.listall=[self.chromosome, self.nc_accession, self.gene, self.gene_id, self.ccds_id, self.ccds_status,
-                      self.cds_strand, str(self.cds_from), str(self.cds_to), self.cds_locations, self.match_type]
+        self.length = self.cds_to - self.cds_from + 1
+        self.exonnumber = len(self.exonlist)
+        self.listall = [self.chromosome, self.nc_accession, self.gene, self.gene_id, self.ccds_id, self.ccds_status,
+                        self.cds_strand, str(self.cds_from), str(self.cds_to), self.cds_locations, self.match_type]
 
 
 class superCCDS(CCDS):
@@ -81,3 +80,32 @@ class superCCDS(CCDS):
         '''
         ccds = CCDS(listitems)
         self.addccds(ccds)
+
+
+def parsechromdict(ccds):
+    ChromeDict = {}
+    with open(ccds) as inputfile:
+        inputfile.readline()
+        for item in inputfile:
+            item = item.strip()
+            itemlist = item.split('\t')
+            if itemlist[5] == "Public":
+                # tmepccds=CCDS.superCCDS(itemlist)
+                if itemlist[0] in ChromeDict:
+                    if itemlist[3] in ChromeDict[itemlist[0]]:
+                        ChromeDict[itemlist[0]][itemlist[3]].addlist(itemlist)
+                    else:
+                        ChromeDict[itemlist[0]][itemlist[3]] = CCDS.superCCDS(itemlist)
+                else:
+                    ChromeDict[itemlist[0]] = {itemlist[3]: CCDS.superCCDS(itemlist)}
+    return ChromeDict
+
+
+def parseccdsdict(ccds):
+    CCDSDict = {}
+    ChromeDict = parsechromdict(ccds)
+    for chrom in ChromeDict:
+        for gene_id in ChromeDict[chrom]:
+            for ccds_id in ChromeDict[chrom][gene_id].super_ccds_id:
+                CCDSDict[ccds_id] = ChromeDict[chrom][gene_id]
+    return CCDSDict
