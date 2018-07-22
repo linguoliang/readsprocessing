@@ -57,6 +57,7 @@ ReadNameDict = {}
 def getchimericreadrecords(refaln, ccdsaln, ccdsanno, output):
     CCDSDict = CCDS.parseccdsdict(ccdsanno)
     ReadNameDict,header = Pairendreads.parsereadnamedict(refaln)
+    samoutput=pysam.AlignmentFile(output,'w',header=header)
     samfile = pysam.AlignmentFile(ccdsaln)
     for item in samfile:
         assert issubclass(item, pysam.AlignedSegment)
@@ -74,7 +75,12 @@ def getchimericreadrecords(refaln, ccdsaln, ccdsanno, output):
                 for mapregion in a.read1.mapregion:
                     temp.append(interval.interval(mapregion) in region)
                 if len(temp) > sum(temp):
-                    pass
+                    for read in a.read1.aln:
+                        samoutput.write(read)
+                    for read in a.read2.aln:
+                        samoutput.write(read)
+    samfile.close()
+    samoutput.close()
 
 if __name__ == '__main__':
     printinformations()
