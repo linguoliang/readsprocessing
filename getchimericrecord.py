@@ -56,8 +56,8 @@ ReadNameDict = {}
 # define your functions here!
 def getchimericreadrecords(refaln, ccdsaln, ccdsanno, output):
     CCDSDict = CCDS.parseccdsdict(ccdsanno)
-    ReadNameDict,header = Pairendreads.parsereadnamedict(refaln)
-    samoutput=pysam.AlignmentFile(output,'w',header=header)
+    ReadNameDict, header = Pairendreads.parsereadnamedict(refaln)
+    samoutput = pysam.AlignmentFile(output, 'w', header=header)
     samfile = pysam.AlignmentFile(ccdsaln)
     for item in samfile:
         assert isinstance(item, pysam.AlignedSegment)
@@ -79,12 +79,14 @@ def getchimericreadrecords(refaln, ccdsaln, ccdsanno, output):
                         samoutput.write(read)
                     for read in a.read2.aln:
                         samoutput.write(read)
+                    break
     samfile.close()
     samoutput.close()
+
 
 if __name__ == '__main__':
     printinformations()
     options = _parse_args()
     # your code here!
-    getchimericreadrecords(options.refaln,options.ccdsaln,options.ccdsanno,options.output)
+    getchimericreadrecords(options.refaln, options.ccdsaln, options.ccdsanno, options.output)
     programends()

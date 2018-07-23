@@ -2,6 +2,7 @@
 # coding=utf-8
 import optparse
 import time
+
 import pysam
 
 __author__ = 'Guoliang Lin'
@@ -57,7 +58,6 @@ class Read:
         self.sublen = sublen
         self.getmapresion(read)
 
-
     def addaln(self, alnments: pysam.AlignedSegment):
         if self.qname == alnments.qname and self.is_read1 == alnments.is_read1:
             self.aln.append(alnments)
@@ -73,9 +73,10 @@ class Read:
         self.rname.append(rname)
 
     def getmapresion(self, read: pysam.AlignedSegment):
-        if read.reference_start + self.sublen <= read.reference_end - self.sublen:
-            region = [read.reference_start + self.sublen, read.reference_end - self.sublen]
-            self.mapregion.append(region)
+        if read.reference_start and read.reference_end:
+            if read.reference_start + self.sublen <= read.reference_end - self.sublen:
+                region = [read.reference_start + self.sublen, read.reference_end - self.sublen]
+                self.mapregion.append(region)
 
 
 class Pairendread:
@@ -90,7 +91,7 @@ class Pairendread:
             self.read2 = Read(read, self.sublen)
 
     def addread(self, read):
-        if self.qname == read.qname :
+        if self.qname == read.qname:
             if read.is_read1:
                 if self.read1 is not None:
                     self.read1.addaln(read)
@@ -107,31 +108,30 @@ class Pairendread:
 
 class CCDSPairendread(Pairendread):
     def __init__(self, read: pysam.AlignedSegment, sublen=SUBLEN):
-        Pairendread.__init__(self,read, sublen)
+        Pairendread.__init__(self, read, sublen)
         self.isrecussive = False
 
     def addCCDS(self, readsccds: pysam.AlignedSegment):
         if not readsccds.is_unmapped:
-            ccds_id = str(readsccds.rname).split("|")[0]
+            ccds_id = str(readsccds.reference_name).split("|")[0]
             if readsccds.is_read1:
                 self.read1.addrname(ccds_id)
             else:
                 self.read2.addrname(ccds_id)
 
 
-def parsereadnamedict(samfile,sublen=SUBLEN) -> (dict,pysam.AlignmentHeader):
+def parsereadnamedict(samfile, sublen=SUBLEN) -> (dict, pysam.AlignmentHeader):
     ReadNameDict = {}
     samfile = pysam.AlignmentFile(samfile, 'r')
     for item in samfile:
         assert isinstance(item, pysam.AlignedSegment)
-        if not item.is_unmapped:
-            if item.qname in ReadNameDict:
-                ReadNameDict[item.qname].addread(item)
-            else:
-                ReadNameDict[item.qname] = CCDSPairendread(item,sublen)
-    header=samfile.header
+        if item.qname in ReadNameDict:
+            ReadNameDict[item.qname].addread(item)
+        else:
+            ReadNameDict[item.qname] = CCDSPairendread(item, sublen)
+    header = samfile.header
     samfile.close()
-    return ReadNameDict,header
+    return ReadNameDict, header
 
 
 if __name__ == '__main__':
