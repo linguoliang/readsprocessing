@@ -86,5 +86,5 @@ if __name__ == '__main__':
     printinformations()
     options = _parse_args()
     # your code here!
-    getchimericreadrecords(options.refaln,options.ccdsaln,options.ccdsaln,options.output)
+    getchimericreadrecords(options.refaln,options.ccdsaln,options.ccdsanno,options.output)
     programends()
