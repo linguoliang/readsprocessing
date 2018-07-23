@@ -60,7 +60,7 @@ def getchimericreadrecords(refaln, ccdsaln, ccdsanno, output):
     samoutput=pysam.AlignmentFile(output,'w',header=header)
     samfile = pysam.AlignmentFile(ccdsaln)
     for item in samfile:
-        assert issubclass(item, pysam.AlignedSegment)
+        assert isinstance(item, pysam.AlignedSegment)
         if item.qname in ReadNameDict:
             ReadNameDict[item.qname].addCCDS(item)
     for qname in ReadNameDict:

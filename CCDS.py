@@ -95,9 +95,9 @@ def parsechromdict(ccds):
                     if itemlist[3] in ChromeDict[itemlist[0]]:
                         ChromeDict[itemlist[0]][itemlist[3]].addlist(itemlist)
                     else:
-                        ChromeDict[itemlist[0]][itemlist[3]] = CCDS.superCCDS(itemlist)
+                        ChromeDict[itemlist[0]][itemlist[3]] = superCCDS(itemlist)
                 else:
-                    ChromeDict[itemlist[0]] = {itemlist[3]: CCDS.superCCDS(itemlist)}
+                    ChromeDict[itemlist[0]] = {itemlist[3]: superCCDS(itemlist)}
     return ChromeDict
 
 
