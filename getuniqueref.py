@@ -55,6 +55,30 @@ def writeannotation(antationname,ChromeDict={}, ccds=None):
                 tempstr = str(ChromeDict[chr][anno])
                 annoutput.write(tempstr + '\n')
 
+def writeannotation100kintronbed(antationname,ChromeDict={}, ccds=None):
+
+    if ccds and len(ChromeDict) == 0:
+        ChromeDict=CCDS.parsechromdict(ccds)
+    with open(antationname+'.bed', 'w') as annoutput:
+        for chr in ChromeDict:
+            for anno in ChromeDict[chr]:
+                x=ChromeDict[chr][anno]
+
+                for exon in x.exonlist:
+                    string='\t'.join([x.chromosome,str(exon[0]),str(exon[1])])
+                    annoutput.write(string + '\n')
+
+
+def writeannotationgenebed(antationname,ChromeDict={}, ccds=None):
+
+    if ccds and len(ChromeDict) == 0:
+        ChromeDict=CCDS.parsechromdict(ccds)
+    with open(antationname+'.bed', 'w') as annoutput:
+        for chr in ChromeDict:
+            for anno in ChromeDict[chr]:
+                x=ChromeDict[chr][anno]
+                string='\t'.join([x.chromosome,str(x.cds_from),str(x.cds_to)])
+                annoutput.write(string + '\n')
 
 # def parsechromdict(ccds):
 #     with open(ccds) as inputfile:
@@ -97,5 +121,7 @@ if __name__ == '__main__':
     printinformations()
     options = _parse_args()
     # your code here!
-    getuniqueref(options.ccds, options.ref, options.output, options.anno)
+    # getuniqueref(options.ccds, options.ref, options.output, options.anno)
+    # writeannotationbed(options.anno,{},options.ccds)
+    writeannotationgenebed("anon.gene",{},options.ccds)
     programends()
