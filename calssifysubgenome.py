@@ -88,5 +88,4 @@ caculateratio("8952-gan-merged.snv",lengthm,lengthp)
 print("Caculate the ratio of diploid")
 caculateratio("16001-gan-merged.snv",lengthm,lengthp)
 
-
 programends()
