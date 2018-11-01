@@ -4,7 +4,7 @@ import optparse
 import time
 
 from Bio import SeqIO
-
+import interval
 import CCDS
 
 __author__ = 'Guoliang Lin'
@@ -63,10 +63,14 @@ def writeannotation100kintronbed(antationname,ChromeDict={}, ccds=None):
         for chr in ChromeDict:
             for anno in ChromeDict[chr]:
                 x=ChromeDict[chr][anno]
-
-                for exon in x.exonlist:
-                    string='\t'.join([x.chromosome,str(exon[0]),str(exon[1])])
-                    annoutput.write(string + '\n')
+                m=[j for i in x.exonlist for j in i]
+                m.pop()
+                m.pop(0)
+                intron=[[m[2 * i] + 1, m[2 * i + 1] - 1] for i in range(len(m) // 2)]
+                for exon in intron:
+                    if exon[1]-exon[0]>100000:
+                        string='\t'.join([x.chromosome,str(exon[0]),str(exon[1])])
+                        annoutput.write(string + '\n')
 
 
 def writeannotationgenebed(antationname,ChromeDict={}, ccds=None):
@@ -123,5 +127,6 @@ if __name__ == '__main__':
     # your code here!
     # getuniqueref(options.ccds, options.ref, options.output, options.anno)
     # writeannotationbed(options.anno,{},options.ccds)
-    writeannotationgenebed("anon.gene",{},options.ccds)
+    # writeannotationgenebed("anon.gene",{},options.ccds)
+    writeannotation100kintronbed("anon.intron",{}, options.ccds)
     programends()

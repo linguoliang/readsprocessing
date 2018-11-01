@@ -2,7 +2,6 @@
 # coding=utf-8
 import optparse
 import time
-
 import interval
 import pysam
 
