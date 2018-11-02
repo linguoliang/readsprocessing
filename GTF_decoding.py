@@ -6,6 +6,7 @@ modified in this file!
 rename: isoverlab ->union, decodegff->decodegtf
 2018-11-1
 modified findgene functions
+modification: abandon B_search function, it is not suitable for searching intervals or regions
 """
 import sys
 from functools import reduce
