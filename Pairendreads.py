@@ -119,7 +119,6 @@ class CCDSPairendread(Pairendread):
             else:
                 self.read2.addrname(ccds_id)
 
-
 def parsereadnamedict(samfile, sublen=SUBLEN) -> (dict, pysam.AlignmentHeader):
     ReadNameDict = {}
     samfile = pysam.AlignmentFile(samfile, 'r')
