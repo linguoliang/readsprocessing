@@ -12,7 +12,10 @@
 #     name(infile)
 #     m=infile.readline()
 #     print("out name is {}".format(m))
-m=[[22,33],[44,55]]
-def x(x,c,v,b):
-    print([x,c,v,b])
-x(**m)
+# m=[[22,33],[44,55]]
+# def x(x,c,v,b):
+#     print([x,c,v,b])
+# x(**m)
+import os
+print(os.getcwd())
+print(os.path.exists(os.getcwd()+'/'))
