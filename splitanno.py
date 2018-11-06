@@ -17,11 +17,12 @@ def splitanno(bedanno):
             for item in inputfile:
                 itemlist=item.strip().split('\t')
                 if tempname!=itemlist[3]:
+                    tempname=itemlist[3]
                     dirpath=cwd+'/'+tempname+'/'
                     if os.path.exists(cwd+'/'+tempname):
                         print("error!,dir {} exits already!".format(tempname))
                     else:
-                        os.mkdir()
+                        os.mkdir(dirpath)
                         dirlist.write(tempname+'\n')
                         try:
                             outputfile.close()
