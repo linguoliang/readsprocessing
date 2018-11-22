@@ -2,18 +2,15 @@
 # coding=utf-8
 import optparse
 import time
-import os
-import itertools
-import math
 import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
+import os
+import math
 
 __author__ = 'Guoliang Lin'
-Softwarename = 'gethicdata'
+Softwarename = 'gethicdatatonpy'
 version = '0.0.1'
 bugfixs = ''
-__date__ = '2018/11/13'
+__date__ = '2018/11/22'
 
 
 def printinformations():
@@ -50,9 +47,13 @@ def _parse_args():
 
 
 # define your functions here!
+
+
+# define your functions here!
 chromosomeDict={}
 chromosomeMaxtrix={}
 list_row_data=[]
+
 
 if __name__ == '__main__':
     printinformations()
@@ -64,10 +65,11 @@ if __name__ == '__main__':
             item=item.strip()
             chrom,size=item.split('\t')
             chrom=chrom.replace("chr",'')
-            chromosomeDict[int(chrom)]=int(size)
-            chromosomeMaxtrix[int(chrom)]=math.ceil(int(size)/binsize)
-    for i in range(1,51):
-        for j in range(1,51):
+            chromosomeDict[chrom]=int(size)
+            chromosomeMaxtrix[chrom]=math.ceil(int(size)/binsize)
+    prechromosomes=[]
+    for i in chromosomeDict:
+        for j in chromosomeDict:
             os.system('straw VC {2} {0} {1} BP {3} > {0}_{1}.txt'.format(i,j,options.hic,binsize))
             data=np.zeros((chromosomeMaxtrix[i],chromosomeMaxtrix[j]))
             # print(data.shape)
@@ -75,21 +77,23 @@ if __name__ == '__main__':
                 for item in datafile:
                     item=item.strip()
                     itemlist=item.split('\t')
-                    if i<j:
+                    if i==j:
                         data[int(itemlist[0])//binsize,int(itemlist[1])//binsize]=float(itemlist[2])
-                    elif i>j:
+                        data[int(itemlist[1])//binsize,int(itemlist[0])//binsize]=float(itemlist[2])
+                    elif j in prechromosomes:
                         data[int(itemlist[1])//binsize,int(itemlist[0])//binsize]=float(itemlist[2])
                     else:
                         data[int(itemlist[0])//binsize,int(itemlist[1])//binsize]=float(itemlist[2])
-                        data[int(itemlist[1])//binsize,int(itemlist[0])//binsize]=float(itemlist[2])
-            if j==1:
-                list_row_data.append(data)
-            else:
-                list_row_data[i-1]=np.hstack((list_row_data[i-1],data))
-    dataall=list_row_data[0]
-    for i in range(1,50):
-        dataall=np.vstack((dataall,list_row_data[i]))
+            np.save('{0}_{1}.npy'.format(i,j),data)
+            # if j==1:
+            #     list_row_data.append(data)
+            # else:
+            #     list_row_data[i-1]=np.hstack((list_row_data[i-1],data))
+        prechromosomes.append(i)
+    # dataall=list_row_data[0]
+    # for i in range(1,50):
+    #     dataall=np.vstack((dataall,list_row_data[i]))
     # sns.heatmap(dataall,vmax=10000)
     # plt.show()
-    np.save("1M.npy",dataall)
+    # np.save("1M.npy",dataall)
     programends()
