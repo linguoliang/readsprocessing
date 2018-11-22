@@ -1,2 +1,3 @@
-x=(82*2+80*2+94*3+92*3+92*2+89*3)/15
-print("{} {}".format(x,x*0.3))
+import numpy as np
+import matplotlib.pyplot as plt
+import math
