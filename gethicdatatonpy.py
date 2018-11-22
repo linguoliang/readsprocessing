@@ -5,6 +5,7 @@ import time
 import numpy as np
 import os
 import math
+from scipy import sparse
 
 __author__ = 'Guoliang Lin'
 Softwarename = 'gethicdatatonpy'
@@ -84,7 +85,9 @@ if __name__ == '__main__':
                         data[int(itemlist[1])//binsize,int(itemlist[0])//binsize]=float(itemlist[2])
                     else:
                         data[int(itemlist[0])//binsize,int(itemlist[1])//binsize]=float(itemlist[2])
-            np.save('{0}_{1}.npy'.format(i,j),data)
+            sparse_data=sparse.bsr_matrix(data)
+            sparse.save_npz('{0}_{1}.npz'.format(i,j),sparse_data)
+            # np.save('{0}_{1}.npy'.format(i,j),data)
             # if j==1:
             #     list_row_data.append(data)
             # else:
