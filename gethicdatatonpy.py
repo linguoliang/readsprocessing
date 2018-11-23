@@ -70,21 +70,22 @@ if __name__ == '__main__':
             chromosomeMaxtrix[chrom]=math.ceil(int(size)/binsize)
     prechromosomes=[]
     for i in chromosomeDict:
-        for j in chromosomeDict:
-            os.system('straw VC {2} {0} {1} BP {3} > {0}_{1}.txt'.format(i,j,options.hic,binsize))
-            data=np.zeros((chromosomeMaxtrix[i],chromosomeMaxtrix[j]))
-            # print(data.shape)
-            with open('{0}_{1}.txt'.format(i,j)) as datafile:
-                for item in datafile:
-                    item=item.strip()
-                    itemlist=item.split('\t')
-                    if i==j:
-                        data[int(itemlist[0])//binsize,int(itemlist[1])//binsize]=float(itemlist[2])
-                        data[int(itemlist[1])//binsize,int(itemlist[0])//binsize]=float(itemlist[2])
-                    elif j in prechromosomes:
-                        data[int(itemlist[1])//binsize,int(itemlist[0])//binsize]=float(itemlist[2])
-                    else:
-                        data[int(itemlist[0])//binsize,int(itemlist[1])//binsize]=float(itemlist[2])
+        # for j in chromosomeDict:
+        j=i
+        os.system('straw VC {2} {0} {1} BP {3} > {0}_{1}.txt'.format(i,j,options.hic,binsize))
+        data=np.zeros((chromosomeMaxtrix[i],chromosomeMaxtrix[j]))
+        # print(data.shape)
+        with open('{0}_{1}.txt'.format(i,j)) as datafile:
+            for item in datafile:
+                item=item.strip()
+                itemlist=item.split('\t')
+                if i==j:
+                    data[int(itemlist[0])//binsize,int(itemlist[1])//binsize]=float(itemlist[2])
+                    data[int(itemlist[1])//binsize,int(itemlist[0])//binsize]=float(itemlist[2])
+                elif j in prechromosomes:
+                    data[int(itemlist[1])//binsize,int(itemlist[0])//binsize]=float(itemlist[2])
+                else:
+                    data[int(itemlist[0])//binsize,int(itemlist[1])//binsize]=float(itemlist[2])
             sparse_data=sparse.bsr_matrix(data)
             sparse.save_npz('{0}_{1}.npz'.format(i,j),sparse_data)
             # np.save('{0}_{1}.npy'.format(i,j),data)
