@@ -5,10 +5,10 @@ import time
 import os
 
 __author__ = 'Guoliang Lin'
-Softwarename = 'massproduce'
+Softwarename = 'massclean'
 version = '0.0.1'
 bugfixs = ''
-__date__ = '2018/11/24'
+__date__ = '2018/11/25'
 
 
 def printinformations():
@@ -60,6 +60,7 @@ if __name__ == '__main__':
     with open(options.input) as infile:
         for item in infile:
             item=item.strip()
-            os.system("cat run.sh | sed 's/LINGENE\/LINGENE/{0}\/{0}/g'> ./{0}/run.sh".format(item))
-            os.system("cd {0};{3};sh run.sh {1} {2}".format(item,sam.format(SRR3192396),sam.format(SRR3192397),ln))
+            # os.system("cat run.sh | sed 's/LINGENE\/LINGENE/{0}\/{0}/g'> ./{0}/run.sh".format(item))
+            # 清除所有结果
+            os.system("cd {0};rm *.results*;rm {1} {2} {3} {4};rm 1.*;rm recurs_splicing_peaks.wig".format(item,bam1,bam2,bai1,bai2))
     programends()
