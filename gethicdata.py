@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # coding=utf-8
+# This scripts only for goldfish!!!
 import optparse
 import time
 import os

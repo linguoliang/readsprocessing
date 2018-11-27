@@ -2,13 +2,14 @@
 # coding=utf-8
 import optparse
 import time
-import os
+import numpy as np
+import matplotlib.pyplot as plt
 
 __author__ = 'Guoliang Lin'
-Softwarename = 'massclean'
+Softwarename = 'Vitral4C'
 version = '0.0.1'
 bugfixs = ''
-__date__ = '2018/11/25'
+__date__ = '2018/11/27'
 
 
 def printinformations():
@@ -39,28 +40,32 @@ def _parse_args():
 
 
 # define your functions here!
-prefix="/home/luoj/data/GM12878RNA/SRR3192396/anno/"
-prefixdata="/home/luoj/data/GM12878RNA/{0}/"
-SRR3192396="SRR3192396"
-SRR3192397="SRR3192397"
-sam="{0}_gsnap2012_fix_srt_rmdup.bam"
-bai="{0}_gsnap2012_fix_srt_rmdup.bam.bai"
-bam1="{0} {1}".format(prefixdata.format(SRR3192396)+sam.format(SRR3192396),sam.format(SRR3192396))
-bai1="{0} {1}".format(prefixdata.format(SRR3192396)+bai.format(SRR3192396),bai.format(SRR3192396))
-bam2="{0} {1}".format(prefixdata.format(SRR3192397)+sam.format(SRR3192397),sam.format(SRR3192397))
-bai2="{0} {1}".format(prefixdata.format(SRR3192397)+bai.format(SRR3192397),bai.format(SRR3192397))
-
-ln="ln -s {0};ln -s {1};ln -s {2};ln -s {3}".format(bam1,bam2,bai1,bai2)
+def parserViewPoint(point,name,long=300,resolution=1000):
+    point=(point//resolution)*resolution
+    data=np.zeros(long)
+    datax=np.arange(point,point+long*resolution,resolution)
+    l=point-1
+    r=point+long*resolution
+    with open(name) as inputfile:
+        for item in inputfile:
+            item=item.strip().split('\t')
+            x1=int(item[0])
+            x2=int(item[1])
+            concact=float(item[2])
+            if x1==point:
+                if l< x2 <r:
+                    data[(x2-point)//resolution]=concact
+            elif x2==point:
+                if l< x1 <r:
+                    data[(x1-point)//resolution]=concact
+    print(data)
+    plt.plot(datax,data)
+    plt.show()
 
 
 if __name__ == '__main__':
     printinformations()
     options = _parse_args()
     # your code here!
-    with open(options.input) as infile:
-        for item in infile:
-            item=item.strip()
-            # os.system("cat run.sh | sed 's/LINGENE\/LINGENE/{0}\/{0}/g'> ./{0}/run.sh".format(item))
-            # 清除所有结果
-            os.system("cd {0};rm *.results*;rm {1} {2} {3} {4};rm 1.*;rm recurs_splicing_peaks.wig".format(item,sam.format(SRR3192396),sam.format(SRR3192397),bai.format(SRR3192396),bai.format(SRR3192396)))
+    parserViewPoint(174159657,"1_1.txt")
     programends()
