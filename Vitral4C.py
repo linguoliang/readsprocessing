@@ -39,25 +39,30 @@ def _parse_args():
     return options
 
 
+def finddata(points,l,r,container,x1,x2,contact):
+    points[points==x1]
+
 # define your functions here!
-def parserViewPoint(point,name,long=300,resolution=1000):
-    point=(point//resolution)*resolution
+def parserViewPoint(points:np.ndarray,name,long=1000,resolution=1000):
+    # points=np.array(points)
+    points=(points//resolution)*resolution
+    container=np.zeros((len(points),long*2))
     data=np.zeros(long)
-    datax=np.arange(point,point+long*resolution,resolution)
-    l=point-1
-    r=point+long*resolution
+    datax=np.arange(points,points+long*resolution,resolution)
+    l=points-long*resolution
+    r=points+long*resolution
     with open(name) as inputfile:
         for item in inputfile:
             item=item.strip().split('\t')
             x1=int(item[0])
             x2=int(item[1])
             concact=float(item[2])
-            if x1==point:
+            if x1==points:
                 if l< x2 <r:
-                    data[(x2-point)//resolution]=concact
-            elif x2==point:
+                    data[(x2-points)//resolution]=concact
+            elif x2==points:
                 if l< x1 <r:
-                    data[(x1-point)//resolution]=concact
+                    data[(x1-points)//resolution]=concact
     print(data)
     plt.plot(datax,data)
     plt.show()
