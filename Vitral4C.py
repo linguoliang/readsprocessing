@@ -39,8 +39,12 @@ def _parse_args():
     return options
 
 
-def finddata(points,l,r,container,x1,x2,contact):
-    points[points==x1]
+def finddata(points,l,r,container,x1,x2,contact,long=1000,resolution=1000):
+    x1eq=(points==x1)&(l<x2)&(r>x2)
+    x2eq=(points==x2)&(l<x1)&(r>x1)
+    container[x1eq,(x2-points[x1eq])//resolution+long]=contact
+    container[x2eq,(x1-points[x2eq])//resolution+long]=contact
+    return container
 
 # define your functions here!
 def parserViewPoint(points:np.ndarray,name,long=1000,resolution=1000):
@@ -57,12 +61,7 @@ def parserViewPoint(points:np.ndarray,name,long=1000,resolution=1000):
             x1=int(item[0])
             x2=int(item[1])
             concact=float(item[2])
-            if x1==points:
-                if l< x2 <r:
-                    data[(x2-points)//resolution]=concact
-            elif x2==points:
-                if l< x1 <r:
-                    data[(x1-points)//resolution]=concact
+            container=finddata(points,l,r,container,x1,x2,concact,long,resolution)
     print(data)
     plt.plot(datax,data)
     plt.show()
