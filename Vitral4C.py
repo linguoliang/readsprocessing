@@ -3,6 +3,7 @@
 import optparse
 import time
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 __author__ = 'Guoliang Lin'
@@ -39,37 +40,68 @@ def _parse_args():
     return options
 
 
-def finddata(points,l,r,container,x1,x2,contact,long=1000,resolution=1000):
-    x1eq=(points==x1)&(l<x2)&(r>x2)
-    x2eq=(points==x2)&(l<x1)&(r>x1)
-    container[x1eq,(x2-points[x1eq])//resolution+long]=contact
-    container[x2eq,(x1-points[x2eq])//resolution+long]=contact
+def finddata(points, leftmargin, rightmargin, container, x1, x2, contact, long=1000, resolution=1000):
+    x1eq = (leftmargin[points == x1] <= x2) & (rightmargin[points == x1] > x2)
+    x2eq = (leftmargin[points == x2] <= x1) & (rightmargin[points == x2] > x1)
+    if len(x1eq) > 0 and x1eq[0]:
+        n1 = np.argwhere(points == x1)
+        container[(x2 - points[points == x1]) // resolution + long,n1] = contact
+    if len(x2eq) > 0 and x2eq[0]:
+        n2 = np.argwhere(points == x2)
+        container[(x1 - points[points == x2]) // resolution + long,n2] = contact
     return container
 
 # define your functions here!
 def parserViewPoint(points:np.ndarray,name,long=1000,resolution=1000):
     # points=np.array(points)
-    points=(points//resolution)*resolution
-    container=np.zeros((len(points),long*2))
-    data=np.zeros(long)
-    datax=np.arange(points,points+long*resolution,resolution)
-    l=points-long*resolution
-    r=points+long*resolution
+    # points=(points//resolution)*resolution
+    # container=np.zeros((long*2,len(points)))
+    # data=np.zeros(long)
+    # datax=np.arange(points,points+long*resolution,resolution)
+    data={}
+    # count=np.arange()
+    datax=range(0,long)
+    for i in datax:
+        data[i]=[]
+    # l=points-long*resolution
+    # r=points+long*resolution
     with open(name) as inputfile:
         for item in inputfile:
             item=item.strip().split('\t')
             x1=int(item[0])
             x2=int(item[1])
             concact=float(item[2])
-            container=finddata(points,l,r,container,x1,x2,concact,long,resolution)
-    print(data)
-    plt.plot(datax,data)
-    plt.show()
+            dist=(abs(x1-x2)//resolution)
+            if dist<long:
+                data[dist].append(concact)
+            # container=finddata(points,l,r,container,x1,x2,concact,long,resolution)
+    # return container
+    # print(data)
+    # plt.plot(datax,data)
+    # plt.show()
+    maxlen=0
+    for i in datax:
+        maxlen=max(maxlen,len(data[i]))
+    for i in datax:
+        if len(data[i])<maxlen:
+            for j in range(len(data[i]),maxlen):
+                data[i].append(None)
+    df=pd.DataFrame(data)
+    means=df.mean()
+    # std=df.std()
+    plt.plot(datax,means)
+    np.save("chrom1_bkgd.npy",means)
+
 
 
 if __name__ == '__main__':
     printinformations()
     options = _parse_args()
     # your code here!
-    parserViewPoint(174159657,"1_1.txt")
+
+    # data=pd.read_excel("test1.xlsx")
+    # chrom1=data[data["chrom"]==1]
+    parserViewPoint(np.array([1,2]),"1_1.txt")
+    # datatostore=pd.DataFrame(container,columns=chrom1["pattern"])
+    # datatostore.to_csv("chrom1_RSdata.txt",sep='\t')
     programends()
