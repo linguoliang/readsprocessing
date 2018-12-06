@@ -14,7 +14,10 @@ for item in m.values:
 # print(m.iloc[1,])
 data=pd.DataFrame({"chr":[],"TAD":[],"distance":[],"values":[]})
 print(data)
-array=np.array([1,3,4,5])>2
-print(m[array])
+array=np.array(x.loc[:,['q','w']])
+array=array[(array[:,1]>5)&(array[:,0]>1)]
+print("1")
+for item in array:
+    print(item)
 # TADinfo=pd.read_csv("GSE63525_GM12878_primary+replicate_Arrowhead_domainlist.txt",sep='\t')
 # print(TADinfo)

@@ -55,12 +55,13 @@ def finddata(points, leftmargin, rightmargin, container, x1, x2, contact, long=1
     return container
 
 def parserViewPoint(TADfile,chrom,name,long=1000,resolution=1000):
-    data=pd.DataFrame({"chr":[],"TAD":[],"distance":[],"values":[]})
+    data={"chr":[],"TAD":[],"distance":[],"values":[]}
     TADinfo=pd.read_csv(TADfile,sep='\t')
     # TADinfo.values
     TADinfo=TADinfo.loc[TADinfo["chr1"]==chrom,["chr1",'x1','y2']]
-    x1array=np.array(TADinfo['x1'])
-    x2array=np.array(TADinfo['y2'])
+    array=np.array(TADinfo.loc[:,['x1',"y2"]])
+    print(array)
+    # x2array=np.array(TADinfo['y2'])
     # datax=range(0,len(TADinfo))
     # for i in datax:
     #     data[i]=[]
@@ -74,12 +75,17 @@ def parserViewPoint(TADfile,chrom,name,long=1000,resolution=1000):
             concact=float(item[2])
             dist=abs(x1-x2)//resolution
             if dist<long:
-                inTAD=TADinfo[(x1array<x1) & (x2array>x2)]
+                inTAD=array[(array[:,0]<x1) & (array[:,1]>x2)]
                 # if len(inTAD)>0:
                 #     print("haha")
-                for tad in inTAD.values:
-                    data.append(pd.DataFrame({"chr":[chrom],"TAD":[str(tad[1])+'_'+str(tad[2])],"distance":[dist],"values":[concact]}),ignore_index=True)
-    data.to_csv('Chrom{}_TAD_distV1.txt'.format(chrom),sep="\t")
+                for tad in inTAD:
+                    data['chr'].append(chrom)
+                    data['TAD'].append(str(tad[0])+'_'+str(tad[1]))
+                    data["distance"].append(dist)
+                    data["values"].append(concact)
+    df=pd.DataFrame(data)
+                    # data=data.append(pd.DataFrame({"chr":[chrom],"TAD":[str(tad[1])+'_'+str(tad[2])],"distance":[dist],"values":[concact]}),ignore_index=True)
+    df.to_csv('Chrom{}_TAD_dist.txt'.format(chrom),sep="\t")
 
                 # data[dist].append(concact)
     # maxlen=0
@@ -100,6 +106,6 @@ def parserViewPoint(TADfile,chrom,name,long=1000,resolution=1000):
 if __name__ == '__main__':
     printinformations()
     options = _parse_args()
-    parserViewPoint("GSE63525_GM12878_primary+replicate_Arrowhead_domainlist.txt",chrom.Chromdict[0],"{0}_{0}.txt".format(chrom.Chromdict[0]))
-
+    for chromsome in chrom.Chromdict:
+        parserViewPoint("GSE63525_GM12878_primary+replicate_Arrowhead_domainlist.txt",chromsome,"{0}_{0}.txt".format(chromsome))
     programends()
