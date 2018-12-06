@@ -3,14 +3,15 @@
 import optparse
 import time
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
+import chrom
 
 __author__ = 'Guoliang Lin'
-Softwarename = 'Vitral4C'
+Softwarename = 'Vitral4C_background'
 version = '0.0.1'
 bugfixs = ''
-__date__ = '2018/11/27'
+__date__ = '2018/12/6'
 
 
 def printinformations():
@@ -31,6 +32,7 @@ def _parse_args():
     parser.add_option('-i',
                       '--input', dest='input', type='string',
                       help='input file!')
+    parser.add_option('-t', '--TAD', dest='TAD', type='string', help='TAD file')
     #    parser.add_option('-f','--fpkm',dest='fpkm_file',type='string',help='input fpkm file')
     #    parser.add_option('-v','--variation', dest='variation', type='string', help='input variation information file')
     #    parser.add_option('-g', '--gff3', dest='gff', help='gff3 file')
@@ -40,6 +42,7 @@ def _parse_args():
     return options
 
 
+# define your functions here!
 def finddata(points, leftmargin, rightmargin, container, x1, x2, contact, long=1000, resolution=1000):
     x1eq = (leftmargin[points == x1] <= x2) & (rightmargin[points == x1] > x2)
     x2eq = (leftmargin[points == x2] <= x1) & (rightmargin[points == x2] > x1)
@@ -51,57 +54,52 @@ def finddata(points, leftmargin, rightmargin, container, x1, x2, contact, long=1
         container[(x1 - points[points == x2]) // resolution + long,n2] = contact
     return container
 
-# define your functions here!
-def parserViewPoint(points:np.ndarray,name,long=1000,resolution=1000):
-    # points=np.array(points)
-    # points=(points//resolution)*resolution
-    # container=np.zeros((long*2,len(points)))
-    # data=np.zeros(long)
-    # datax=np.arange(points,points+long*resolution,resolution)
-    data={}
-    # count=np.arange()
-    datax=range(0,long)
-    for i in datax:
-        data[i]=[]
-    # l=points-long*resolution
-    # r=points+long*resolution
+def parserViewPoint(TADfile,chrom,name,long=1000,resolution=1000):
+    data=pd.DataFrame({"chr":[],"TAD":[],"distance":[],"values":[]})
+    TADinfo=pd.read_csv(TADfile,sep='\t')
+    # TADinfo.values
+    TADinfo=TADinfo.loc[TADinfo["chr1"]==chrom,["chr1",'x1','y2']]
+    x1array=np.array(TADinfo['x1'])
+    x2array=np.array(TADinfo['y2'])
+    # datax=range(0,len(TADinfo))
+    # for i in datax:
+    #     data[i]=[]
     with open(name) as inputfile:
         for item in inputfile:
             item=item.strip().split('\t')
             x1=int(item[0])
             x2=int(item[1])
+            if x1>x2:
+                x1,x2=x2,x1
             concact=float(item[2])
-            dist=(abs(x1-x2)//resolution)
+            dist=abs(x1-x2)//resolution
             if dist<long:
-                data[dist].append(concact)
-            # container=finddata(points,l,r,container,x1,x2,concact,long,resolution)
-    # return container
-    # print(data)
-    # plt.plot(datax,data)
-    # plt.show()
-    maxlen=0
-    for i in datax:
-        maxlen=max(maxlen,len(data[i]))
-    for i in datax:
-        if len(data[i])<maxlen:
-            for j in range(len(data[i]),maxlen):
-                data[i].append(None)
-    df=pd.DataFrame(data)
-    means=df.mean()
-    std=df.std()
-    plt.plot(datax,means)
-    np.save("chrom1_bkgd.npy",means)
+                inTAD=TADinfo[(x1array<x1) & (x2array>x2)]
+                # if len(inTAD)>0:
+                #     print("haha")
+                for tad in inTAD.values:
+                    data.append(pd.DataFrame({"chr":[chrom],"TAD":[str(tad[1])+'_'+str(tad[2])],"distance":[dist],"values":[concact]}),ignore_index=True)
+    data.to_csv('Chrom{}_TAD_distV1.txt'.format(chrom),sep="\t")
+
+                # data[dist].append(concact)
+    # maxlen=0
+    # for i in datax:
+    #     maxlen=max(maxlen,len(data[i]))
+    # for i in datax:
+    #     if len(data[i])<maxlen:
+    #         for j in range(len(data[i]),maxlen):
+    #             data[i].append(None)
+    # df=pd.DataFrame(data)
+    # means=df.mean()
+    # std=df.std()
+    # plt.plot(datax,means)
+    # np.save("chrom1_bkgd.npy",means)
 
 
 
 if __name__ == '__main__':
     printinformations()
     options = _parse_args()
-    # your code here!
+    parserViewPoint("GSE63525_GM12878_primary+replicate_Arrowhead_domainlist.txt",chrom.Chromdict[0],"{0}_{0}.txt".format(chrom.Chromdict[0]))
 
-    # data=pd.read_excel("test1.xlsx")
-    # chrom1=data[data["chrom"]==1]
-    parserViewPoint(np.array([1,2]),"1_1.txt")
-    # datatostore=pd.DataFrame(container,columns=chrom1["pattern"])
-    # datatostore.to_csv("chrom1_RSdata.txt",sep='\t')
     programends()
