@@ -76,6 +76,7 @@ for i, (name, linestyle) in enumerate(linestyles.items()):
     ax.plot(X, Y+i, linestyle=linestyle, linewidth=1.5, color='black')
 
 ax.set_ylim(-0.5, len(linestyles)-0.5)
+print(linestyles.keys())
 plt.yticks(np.arange(len(linestyles)), linestyles.keys())
 plt.xticks([])
 

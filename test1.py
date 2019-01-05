@@ -1,3 +1,64 @@
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+from scipy import stats
+import matplotlib.pyplot as plt
+
+# means=np.load("chrom1_bkgd.npy")
+start=5
+end=0
+x=np.arange(0,2000)
+RSdata=pd.read_excel("data.xlsx")
+TAD=pd.read_csv("GSE63525_GM12878_primary+replicate_Arrowhead_domainlist.txt",sep='\t')
+datacategories=pd.Categorical(RSdata["chrom"])
+for c in [2,3]:
+    CRSdata=RSdata[RSdata["chrom"]==c]
+    print(CRSdata)
+    CTAD=TAD[TAD["chr1"]==str(c)]
+    array=np.array(CTAD.loc[:,['x1',"y2"]])
+    TADbg=pd.read_csv("Chrom{}_TAD_dist.txt".format(c),sep='\t',index_col=0)
+    df=pd.read_csv("chrom{}_RSdata.txt".format(c),sep='\t',index_col=0)
+    for pattern in CRSdata.values:
+        print(pattern)
+        print(array)
+        TADS=array[(array[:,0]<pattern[3])&(array[:,1]>pattern[3])]
+        for TAD in TADS:
+            print("Hello")
+
+            intron=df[pattern[2]]
+            intronarr=np.array(intron)
+            xa=(x-1000+pattern[3]//1000)*1000
+            m=(pattern[4]-pattern[3])//(abs(pattern[4]-pattern[3]))
+            end=(abs(pattern[4]-pattern[3])//1000)*3*m
+            start=start*m
+            if end<start:
+                start,end=end,start
+            TADbgforRS=TADbg[TADbg["TAD"]==str(TAD[0])+'_'+str(TAD[1])]
+            # print(TADbg)
+            plt.axes(xlim=(xa[1000+start]-3, xa[1000+end]+3),ylim=(0,max(intronarr[1000+start:1000+end])))
+            sns.set(style="darkgrid")
+            TADbgforRS["distance"]=(TADbgforRS["distance"]*m+pattern[3]//1000)*1000
+            sns.lineplot(x="distance", y="values",data=TADbgforRS,color="r")
+            # print(xa)
+            plt.plot(xa[1000+start:1000+end],intronarr[1000+start:1000+end],color='g')
+            # plt.plot(xa[start:100],means[5:100],color='r')
+            plt.axvline(x=(pattern[4]//1000)*1000,linestyle=(0, (5, 10)),linewidth=1, color='b')
+
+            plt.savefig('_'.join([str(pattern[0]),pattern[1],pattern[2]])+".pdf",format="pdf")
+            plt.show()
+            plt.clf()
+        # plt.axvline(x=174193000,linewidth=1, color='b')
+        #     plt.show()
+
+# Load an example dataset with long-form data
+# fmri = sns.load_dataset("fmri")
+
+# Plot the responses for different events and regions
+
+
+
+
 # import numpy as np
 #
 #
@@ -24,14 +85,6 @@
 # container = finddata(points, l, r, container, x1, x2, contact, 2, 1)
 # print(container)
 
-import pandas as pd
-import numpy as np
-from scipy import stats
-import matplotlib.pyplot as plt
-
-means=np.load("chrom1_bkgd.npy")
-x=np.arange(0,1000)
-xa=(x+174305)*1000
 # x={1:np.random.randint(10,50,49).tolist(),
 #    2:np.random.randint(10,50,50).tolist(),
 #    3:np.random.randint(10,50,50).tolist()}
@@ -55,17 +108,6 @@ xa=(x+174305)*1000
 # plt.plot(m,y.mean())
 # plt.show()
 # y=np.load("chrom1_bkgd.npy")
-df=pd.read_csv("chrom1_RSdata.txt",sep='\t',index_col=0)
-# print(df)
-intron=df["174305127-ex15-int15__174320502-int15"]
-intronarr=np.array(intron)
-# print()
-print(xa)
-plt.plot(xa[5:100],intronarr[1005:1100],color='g')
-plt.plot(xa[5:100],means[5:100],color='r')
-plt.axvline(x=174320502,linewidth=1, color='b')
-# plt.axvline(x=174193000,linewidth=1, color='b')
-plt.show()
 # print(means)
 #
 # for x in range(0,1):
