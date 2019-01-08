@@ -6,9 +6,10 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import math
 
 __author__ = 'Guoliang Lin'
-Softwarename = 'heatmapforRS.py'
+Softwarename = 'heatmapforPromoter.py'
 version = '0.0.1'
 bugfixs = ''
 __date__ = '2019/01/06'
@@ -52,47 +53,43 @@ for c in datacategories.categories:
     # CTAD=TAD[TAD["chr1"]==str(c)]
     # array=np.array(CTAD.loc[:,['x1',"y2"]])
     # TADbg=pd.read_csv("Chrom{}_TAD_dist.txt".format(c),sep='\t',index_col=0)
-    df=pd.read_csv("chrom{}_RSdata.txt".format(c),sep='\t',index_col=0)
+    df=pd.read_csv("chrom{}_RSdata_T.txt".format(c),sep='\t',index_col=0)
     if Alldata.empty:
         Alldata=df
     else:
         Alldata=pd.merge(Alldata,df,right_index=True,left_index=True)
-RSdata=RSdata.sort_values(('len'),ascending=False)
+RSdata=RSdata.sort_values(('Glen'),ascending=False)
 # print(RSdata["pattern"])
 # heatmaps=
-print(RSdata['pattern'].values)
-RSdata['chain']=RSdata["accepter"]<RSdata['donor']
+# RSdata['chain']=RSdata["accepter"]<RSdata['donor']
 Rarray=None
 for x in RSdata.values:
     if Rarray==None:
         tmparray=np.array([Alldata[x[2]]])
-        if x[-1]:
+        if x[-4]=='-':
             tmparray=tmparray[:,::-1]
         Rarray=tmparray
         print(Rarray[:,::-1])
     else:
         # print(Rarray)
         tmparray=np.array([Alldata[x[2]]])
-        if x[-1]:
+        if x[-4]=='-':
             tmparray=tmparray[:,::-1]
         Rarray=np.concatenate((Rarray,tmparray),axis=0)
-Rarray=Rarray[:,1000:1200]
+Rarray=Rarray[:,1000:2000]
 print(Rarray.shape)
 # print(Alldata)
 Rarray=np.log10(Rarray+0.01)
-# print(Alldata)
-# dfdat=pd.DataFrame(Alldata,index=RSdata["pattern"],columns=range(200))
-# sdf=pd.melt(Alldata)
-# print(sdf)
+print(Rarray)
 m=sns.light_palette('red',as_cmap=True)
 
-fig=sns.heatmap(Rarray,vmin=-1,vmax=1,cmap="RdBu_r",cbar=True)
+fig=sns.heatmap(Rarray,vmin=-1,vmax=1,cmap="RdBu_r")
 j=0
-colors={1:"#000000",2:"#ffff00",3:"#00cc00"}
-print(colors[1])
 for i in RSdata.values:
-    print(i)
-    plt.axhline(y=j+0.5,color=colors[i[-2]],xmax=(i[5]//(1000))/200)
+    plt.axhline(y=j+0.3,color='#0077b4',xmin=0,xmax=min(1,(i[-4]/(1000))/1000))
+    plt.axhline(y=j,color='#00ff58',xmin=0,xmax=min(1,(i[-3]/(1000))/1000))
+    plt.axhline(y=j+0.7,color='#00ff58',xmin=0,xmax=min(1,(i[-5]/(1000))/1000))
+
     j=j+1
 plt.show()
 
