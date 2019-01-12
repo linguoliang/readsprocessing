@@ -88,8 +88,7 @@ j=0
 for i in RSdata.values:
     plt.axhline(y=j+0.3,color='#0077b4',xmin=0,xmax=min(1,(i[-4]/(1000))/1000))
     plt.axhline(y=j,color='#00ff58',xmin=0,xmax=min(1,(i[-3]/(1000))/1000))
-    plt.axhline(y=j+0.7,color='#00ff58',xmin=0,xmax=min(1,(i[-5]/(1000))/1000))
-
+    plt.axhline(y=j+0.7,color='#0000ff',xmin=0,xmax=min(1,(i[-5]/(1000))/1000))
     j=j+1
 plt.show()
 
