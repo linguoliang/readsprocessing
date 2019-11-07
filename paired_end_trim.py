@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2
 # coding=utf-8
 
 __author__ = 'Guoliang Lin'
@@ -82,7 +82,6 @@ def writeonereads(filehandle, name1, seq, name2, q):
 
 
 def writetodisk(fastqfile, intersectset,gz=False):
-    print('Write to disk as {}.pe'.format(fastqfile))
     if gz:
         # print('1')
         linopen=gzip.open
@@ -91,6 +90,7 @@ def writetodisk(fastqfile, intersectset,gz=False):
         # print("2")
         linopen=open
         appendix=""
+    print('Write to disk as {}.pe'.format(fastqfile.replace(appendix,"")))
     with linopen(fastqfile,'rt') as reads:
         with open("{}.pe".format(fastqfile.replace(appendix,"")), 'w') as pe:
             with open("{}.se".format(fastqfile.replace(appendix,"")), 'w') as se:
@@ -124,5 +124,5 @@ if __name__ == '__main__':
     printinformations()
     options = _parse_args()
     # your code here!
-    paired_end_trim(options.R1, options.R2)
+    paired_end_trim(options.R1, options.R2,options.gz)
     programends()
