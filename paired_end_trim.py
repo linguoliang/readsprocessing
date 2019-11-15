@@ -1,14 +1,14 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2
 # coding=utf-8
 
 __author__ = 'Guoliang Lin'
 Softwarename = 'paired_end_trim'
-version = '0.0.1'
-bugfixs = ''
+version = '0.0.2'
+bugfixs = '2019/11/06 add / split'
 __date__ = '2018/6/27'
 import optparse
 import time
-
+import gzip
 
 
 def printinformations():
@@ -32,6 +32,9 @@ def _parse_args():
     parser.add_option('-2',
                       '--R2', dest='R2', type='string',
                       help='paired end read 2')
+    parser.add_option('-g','--gz',
+                      action='store_true', dest='gz', default=False,
+                      help='Is a gzip file? default=False')
     #    parser.add_option('-f','--fpkm',dest='fpkm_file',type='string',help='input fpkm file')
     #    parser.add_option('-v','--variation', dest='variation', type='string', help='input variation information file')
     #    parser.add_option('-g', '--gff3', dest='gff', help='gff3 file')
@@ -42,13 +45,19 @@ def _parse_args():
 
 
 def returnreadsname(name):
-    name = name.strip().split()[0]
+    name = name.strip().split()[0].split("/")[0]
     return name
 
 
-def getnameset(fastqfile, nameset):
+def getnameset(fastqfile, nameset,gz=False):
     print('Getting read name from {}'.format(fastqfile))
-    with open(fastqfile) as read1:
+    if gz:
+        # print('1')
+        linopen=gzip.open
+    else:
+        # print("2")
+        linopen=open
+    with linopen(fastqfile,'rt') as read1:
         while read1:
             name = read1.readline()
             if name:
@@ -72,11 +81,19 @@ def writeonereads(filehandle, name1, seq, name2, q):
     filehandle.write(q)
 
 
-def writetodisk(fastqfile, intersectset):
-    print('Write to disk as {}.pe'.format(fastqfile))
-    with open(fastqfile) as reads:
-        with open("{}.pe".format(fastqfile), 'w') as pe:
-            with open("{}.se".format(fastqfile), 'w') as se:
+def writetodisk(fastqfile, intersectset,gz=False):
+    if gz:
+        # print('1')
+        linopen=gzip.open
+        appendix=".gz"
+    else:
+        # print("2")
+        linopen=open
+        appendix=""
+    print('Write to disk as {}.pe'.format(fastqfile.replace(appendix,"")))
+    with linopen(fastqfile,'rt') as reads:
+        with open("{}.pe".format(fastqfile.replace(appendix,"")), 'w') as pe:
+            with open("{}.se".format(fastqfile.replace(appendix,"")), 'w') as se:
                 while reads:
                     name1 = reads.readline()
                     if name1:
@@ -93,19 +110,19 @@ def writetodisk(fastqfile, intersectset):
 
 
 # define your functions here!
-def paired_end_trim(R1, R2):
+def paired_end_trim(R1, R2,gz=False):
     nameset1 = set()
     nameset2 = set()
-    nameset1 = getnameset(R1, nameset1)
-    nameset2 = getnameset(R2, nameset2)
+    nameset1 = getnameset(R1, nameset1,gz)
+    nameset2 = getnameset(R2, nameset2,gz)
     intersectset = nameset1 & nameset2
-    writetodisk(R1, intersectset)
-    writetodisk(R2, intersectset)
+    writetodisk(R1, intersectset,gz)
+    writetodisk(R2, intersectset,gz)
 
 
 if __name__ == '__main__':
     printinformations()
     options = _parse_args()
     # your code here!
-    paired_end_trim(options.R1, options.R2)
+    paired_end_trim(options.R1, options.R2,options.gz)
     programends()
