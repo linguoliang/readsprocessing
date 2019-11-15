@@ -62,9 +62,9 @@ RSdata=RSdata.sort_values(('len'),ascending=False)
 # heatmaps=
 print(RSdata['pattern'].values)
 RSdata['chain']=RSdata["accepter"]<RSdata['donor']
-Rarray=None
+Rarray=np.array([])
 for x in RSdata.values:
-    if Rarray==None:
+    if len(Rarray)==0:
         tmparray=np.array([Alldata[x[2]]])
         if x[-1]:
             tmparray=tmparray[:,::-1]

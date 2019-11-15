@@ -8,7 +8,7 @@ _thumb: .48, .45
 import seaborn as sns
 import pandas as pd
 import matplotlib.pylab as plt
-df=pd.read_csv("Chrom7_TAD_dist.txt",sep='\t',index_col=0)
+df=pd.read_csv("Chrom7_TAD_dist.txt.gz",sep='\t',index_col=0)
 df=df[df["TAD"]=="555000_810000"]
 print(df)
 sns.set(style="darkgrid")

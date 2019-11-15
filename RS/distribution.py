@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import scipy.stats as ss
 
 
 __author__ = 'Guoliang Lin'
@@ -62,13 +63,16 @@ RSdata=RSdata.sort_values(('Glen'),ascending=False)
 # RSdata['chain']=RSdata["accepter"]<RSdata['donor']
 bins=20
 index=4
-Rarray=None
-distributiond=None
+index1=4
+Rarray=np.array([])
+print(len(Rarray))
+distributiond=np.array([])
 for x in RSdata.values:
+
     tmparray=np.array([Alldata[x[2]]])
     if x[13]=='-':
         tmparray=tmparray[:,::-1]
-    if distributiond==None:
+    if len(distributiond)==0:
         if abs(x[index]-x[14])//1000+bins<1000:
             distributiond=tmparray[:,abs(x[index]-x[14])//1000-bins+1000:abs(x[index]-x[14])//1000+bins+1000]
     else:
@@ -76,28 +80,34 @@ for x in RSdata.values:
             tmpd=tmparray[:,abs(x[index]-x[14])//1000-bins+1000:abs(x[index]-x[14])//1000+bins+1000]
             distributiond=np.concatenate((distributiond,tmpd),axis=0)
 
-    if Rarray==None:
+    if len(Rarray)==0:
         Rarray=tmparray
     else:
         Rarray=np.concatenate((Rarray,tmparray),axis=0)
 
-Randoms=None
+Randoms=np.array([])
 for x in RSdata.values:
+    # print(x)
     tmparray=np.array([Alldata[x[2]]])
     if x[13]=='-':
         tmparray=tmparray[:,::-1]
-    if Randoms==None:
-        rand=np.random.randint(min(bins,abs(x[4]-x[14])//1000),max(bins,abs(x[4]-x[14])//1000))
+    if len(Randoms)==0:
+        # rand=np.random.randint(min(bins,abs(x[4]-x[14])//1000),max(bins,abs(x[4]-x[14])//1000))
+        rand=np.random.randint(max(20-999,bins-abs(x[index1]-x[14])//1000),min(999-20,x[15]//1000-bins-abs(x[index1]-x[14])//1000))
         if rand+bins<1000:
             Randoms=tmparray[:,rand-bins+1000:rand+bins+1000]
-        for ij in range(49):
-            rand=np.random.randint(min(bins,abs(x[4]-x[14])//1000),max(bins,abs(x[4]-x[14])//1000))
+        for ij in range(0):
+            # rand=np.random.randint(min(bins,abs(x[4]-x[14])//1000),max(bins,abs(x[4]-x[14])//1000))
+            # print(x[15]//1000-bins-abs(x[4]-x[14])//1000)
+            rand=np.random.randint(max(20-999,bins-abs(x[index1]-x[14])//1000),min(999-20,x[15]//1000-bins-abs(x[index1]-x[14])//1000))
             if rand+bins<1000:
+                # print(rand+bins)
                 tmpd=tmparray[:,rand-bins+1000:rand+bins+1000]
                 Randoms=np.concatenate((Randoms,tmpd),axis=0)
     else:
-        for ij in range(50):
-            rand=np.random.randint(min(bins,abs(x[4]-x[14])//1000),max(bins,abs(x[4]-x[14])//1000))
+        for ij in range(1):
+            # rand=np.random.randint(min(bins,abs(x[4]-x[14])//1000),max(bins,abs(x[4]-x[14])//1000))
+            rand=np.random.randint(max(20-999,bins-abs(x[index1]-x[14])//1000),min(999-20,x[15]//1000-bins-abs(x[index1]-x[14])//1000))
             if rand+bins<1000:
                 tmpd=tmparray[:,rand-bins+1000:rand+bins+1000]
                 Randoms=np.concatenate((Randoms,tmpd),axis=0)
@@ -106,12 +116,15 @@ for x in RSdata.values:
 
 Rarray=Rarray[:,1000:2000]
 
-print(distributiond.mean(axis=0))
-plt.plot(range(-bins,bins),distributiond.mean(axis=0),color='r',label='acceptor')
-plt.plot(range(-bins,bins),Randoms.mean(axis=0),color='g',label='background')
+# print(distributiond.mean(axis=0))
+print(ss.ranksums(distributiond,Randoms))
+print(ss.mannwhitneyu(distributiond,Randoms).pvalue)
+plt.plot(range(-bins,bins),distributiond.mean(axis=0),color='r',label='acceptor (n=71)')
+plt.plot(range(-bins,bins),Randoms.mean(axis=0),color='g',label='background (n=7100)')
+# plt.plot(range(-bins,bins),Randoms.mean(axis=0)-Randoms.std(axis=0),color='grey',label='background (n=7100)')
 plt.xlabel('acceptor')
 plt.ylabel("Interactions frequency obs/exp")
-plt.legend(loc='upper right', shadow=True, fontsize='x-large')
+plt.legend(loc='upper right', shadow=False, fontsize='x-large')
 
 
 # distributiond=Rarray[:]

@@ -73,5 +73,5 @@ if __name__ == '__main__':
     printinformations()
     options = _parse_args()
     # your code here!
-    getElemnets("Rep.bed",'Alu.bed','Alu')
+    getElemnets("Rep.bed",'LINE.bed','LINE')
     programends()
