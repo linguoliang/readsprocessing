@@ -72,5 +72,5 @@ if __name__ == '__main__':
         for i in chromosomeDict:
             j=i
             print("Processing {2}:{0}_{1}".format(i,j,cellline))
-            os.system('java -jar /home/luoj/data/juicer_tools.1.8.9_jcuda.0.8.jar dump oe KR {2} {1} {1} BP {3} > {0}_{1}.txt'.format(cellline,i,hicdataprefix.format(cellline),binsize))
+            os.system('java -jar /home/luoj/data/juicer_tools.1.8.9_jcuda.0.8.jar dump oe VC {2} {1} {1} BP {3} > {0}_{1}_{3}.txt'.format(cellline,i,hicdataprefix.format(cellline),binsize))
     programends()
