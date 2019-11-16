@@ -1,5 +1,5 @@
-Chromdict=[]
-for i in range(1,23):
+Chromdict = []
+for i in range(1, 23):
     Chromdict.append(str(i))
 
 Chromdict.append("X")
